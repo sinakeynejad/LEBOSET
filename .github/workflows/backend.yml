@@ -1,0 +1,51 @@
+name: Backend
+
+on:
+  push:
+    paths: ["backend/**", "scripts/**", "start-dev.bat", ".github/workflows/backend.yml"]
+  pull_request:
+    paths: ["backend/**", "scripts/**", "start-dev.bat", ".github/workflows/backend.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: leboset_test
+          POSTGRES_PASSWORD: local_test_only
+          POSTGRES_DB: leboset_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U leboset_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.lock
+      - run: python -m pip install -r requirements-dev.lock
+      - run: python -m pip install --no-deps -e .
+      - run: python -m ruff check --config pyproject.toml src tests migrations ../scripts
+      - run: python -m ruff format --config pyproject.toml --check src tests migrations ../scripts
+      - name: SQLite tests
+        run: python -m pytest -q
+      - name: PostgreSQL tests
+        env:
+          LEBOSET_TEST_POSTGRES_URL: postgresql+psycopg://leboset_test:local_test_only@localhost:5432/leboset_test
+        run: python -m pytest -q
+      - name: Check migration consistency
+        run: |
+          python -m alembic upgrade head
+          python -m alembic check

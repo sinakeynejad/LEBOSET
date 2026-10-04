@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# LEBOSET local data
+*.db
+*.db-*
+backend/.venv/
+!.env.example
+
+# Local launcher credentials and runtime files
+backend/.local/

@@ -50,6 +50,6 @@ LEBOSET is designed to turn requests like this into outfit ideas using items fro
 
 ## Project Status
 
-LEBOSET is in early development. The features described here represent the planned first release; a runnable application is not available yet.
+LEBOSET is in early development. A local backend foundation is available for wardrobe management and outfit refinement. The complete web application and AI features are still in development.
 
-Setup instructions and release documentation will be added as the implementation becomes available.
+On Windows, run [`start-dev.bat`](start-dev.bat) to install dependencies, run checks, and open the local API. See the [backend development guide](backend/DEVELOPMENT.md) for details.
